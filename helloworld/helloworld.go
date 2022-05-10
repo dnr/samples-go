@@ -6,7 +6,7 @@ import (
 	"go.temporal.io/sdk/workflow"
 )
 
-var defaultNumber = 19
+var defaultNumber int = 19
 
 // Workflow is a Hello World workflow definition.
 func Workflow(ctx workflow.Context, name string) (string, error) {
