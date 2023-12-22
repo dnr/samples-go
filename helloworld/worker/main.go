@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
@@ -17,10 +18,11 @@ func main() {
 	}
 	defer c.Close()
 
-	w := worker.New(c, "hello-world", worker.Options{})
+	w := worker.New(c, "hello-world", worker.Options{
+		DeadlockDetectionTimeout: time.Minute,
+	})
 
 	w.RegisterWorkflow(helloworld.Workflow)
-	w.RegisterActivity(helloworld.Activity)
 
 	err = w.Run(worker.InterruptCh())
 	if err != nil {

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"go.temporal.io/sdk/client"
 
@@ -18,8 +19,9 @@ func main() {
 	defer c.Close()
 
 	workflowOptions := client.StartWorkflowOptions{
-		ID:        "hello_world_workflowID",
-		TaskQueue: "hello-world",
+		ID:                  "hello_world_workflowID",
+		TaskQueue:           "hello-world",
+		WorkflowTaskTimeout: 2 * time.Second,
 	}
 
 	we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, helloworld.Workflow, "Temporal")

@@ -16,7 +16,7 @@ require (
 	github.com/uber-go/tally/v4 v4.1.1
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	go.temporal.io/api v1.24.0
-	go.temporal.io/sdk v1.25.0
+	go.temporal.io/sdk v1.21.2
 	go.temporal.io/sdk/contrib/opentracing v0.1.0
 	go.temporal.io/sdk/contrib/tally v0.2.0
 	go.temporal.io/sdk/contrib/tools/workflowcheck v0.0.0-20230612164027-11c2cb9e7d2d
@@ -101,3 +101,5 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/validator.v2 v2.0.0-20210331031555-b37d688a7fb0 // indirect
 )
+
+replace go.temporal.io/sdk => ../sdk-go
