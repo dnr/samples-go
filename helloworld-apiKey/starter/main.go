@@ -4,8 +4,9 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
-	"github.com/temporalio/samples-go/helloworld-apiKey"
+	helloworldapiKey "github.com/temporalio/samples-go/helloworld-apiKey"
 	"go.temporal.io/sdk/client"
 )
 
@@ -22,8 +23,8 @@ func main() {
 	defer c.Close()
 
 	workflowOptions := client.StartWorkflowOptions{
-		ID:        "hello_world_workflowID",
-		TaskQueue: "hello-world-apiKey",
+		ID:        "hello-" + time.Now().Format(time.RFC3339),
+		TaskQueue: "fairtest1",
 	}
 
 	we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, helloworldapiKey.Workflow, "Temporal")

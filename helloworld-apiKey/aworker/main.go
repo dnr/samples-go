@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/temporalio/samples-go/helloworld-apiKey"
+	helloworldapiKey "github.com/temporalio/samples-go/helloworld-apiKey"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 )
@@ -21,9 +21,10 @@ func main() {
 	}
 	defer c.Close()
 
-	w := worker.New(c, "hello-world-apiKey", worker.Options{})
+	w := worker.New(c, "fairtest2", worker.Options{
+		DisableWorkflowWorker: true,
+	})
 
-	w.RegisterWorkflow(helloworldapiKey.Workflow)
 	w.RegisterActivity(helloworldapiKey.Activity)
 
 	err = w.Run(worker.InterruptCh())

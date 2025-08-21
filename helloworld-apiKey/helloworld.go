@@ -10,35 +10,47 @@ import (
 
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
 
 // Workflow is a Hello World workflow definition.
-func Workflow(ctx workflow.Context, name string) (string, error) {
-	ao := workflow.ActivityOptions{
-		StartToCloseTimeout: 10 * time.Second,
-	}
-	ctx = workflow.WithActivityOptions(ctx, ao)
+func Workflow(ctx workflow.Context, name string) error {
+	const acts = 10
+	fkeys := []string{"A", "B", "C"}
 
 	logger := workflow.GetLogger(ctx)
-	logger.Info("HelloWorld workflow started", "name", name)
 
-	var result string
-	err := workflow.ExecuteActivity(ctx, Activity, name).Get(ctx, &result)
-	if err != nil {
-		logger.Error("Activity failed.", "Error", err)
-		return "", err
+	var futs []workflow.Future
+	for _, fkey := range fkeys {
+		for range acts {
+			ao := workflow.ActivityOptions{
+				StartToCloseTimeout: 10 * time.Second,
+				TaskQueue:           "fairtest2",
+				Priority:            temporal.Priority{FairnessKey: fkey},
+			}
+			ctx = workflow.WithActivityOptions(ctx, ao)
+			fut := workflow.ExecuteActivity(ctx, Activity)
+			futs = append(futs, fut)
+		}
 	}
 
-	logger.Info("HelloWorld workflow completed.", "result", result)
+	for _, f := range futs {
+		err := f.Get(ctx, nil)
+		if err != nil {
+			logger.Error("Activity failed.", "Error", err)
+			return err
+		}
+	}
 
-	return result, nil
+	return nil
 }
 
-func Activity(ctx context.Context, name string) (string, error) {
+func Activity(ctx context.Context) error {
 	logger := activity.GetLogger(ctx)
-	logger.Info("Activity", "name", name)
-	return "Hello " + name + "!", nil
+	fkey := activity.GetInfo(ctx).Priority.FairnessKey
+	logger.Info("Activity", "fkey", fkey)
+	return nil
 }
 
 // ParseClientOptionFlags parses the given arguments into client options. In
@@ -47,8 +59,8 @@ func Activity(ctx context.Context, name string) (string, error) {
 func ParseClientOptionFlags(args []string) (client.Options, error) {
 	// Parse args
 	set := flag.NewFlagSet("hello-world-api-key", flag.ExitOnError)
-	targetHost := set.String("target-host", "localhost:7233", "Host:port for the server")
-	namespace := set.String("namespace", "default", "Namespace for the server")
+	targetHost := set.String("target-host", "us-east-1.aws.api.temporal.io:7233", "Host:port for the server")
+	namespace := set.String("namespace", "david.a2dd6", "Namespace for the server")
 	apiKey := set.String("api-key", "", "Optional API key, mutually exclusive with cert/key")
 
 	if err := set.Parse(args); err != nil {
