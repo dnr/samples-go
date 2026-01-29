@@ -10,30 +10,29 @@ import (
 
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/client"
-	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
 
 // Workflow is a Hello World workflow definition.
 func Workflow(ctx workflow.Context, name string) error {
-	const acts = 10
-	fkeys := []string{"A", "B", "C"}
+	const acts = 3
+	// fkeys := []string{"A", "B", "C"}
 
 	logger := workflow.GetLogger(ctx)
 
 	var futs []workflow.Future
-	for _, fkey := range fkeys {
-		for range acts {
-			ao := workflow.ActivityOptions{
-				StartToCloseTimeout: 10 * time.Second,
-				TaskQueue:           "fairtest2",
-				Priority:            temporal.Priority{FairnessKey: fkey},
-			}
-			ctx = workflow.WithActivityOptions(ctx, ao)
-			fut := workflow.ExecuteActivity(ctx, Activity)
-			futs = append(futs, fut)
+	// for _, fkey := range fkeys {
+	for range acts {
+		ao := workflow.ActivityOptions{
+			StartToCloseTimeout: 10 * time.Second,
+			// TaskQueue:           "ptest",
+			// Priority:            temporal.Priority{FairnessKey: fkey},
 		}
+		ctx = workflow.WithActivityOptions(ctx, ao)
+		fut := workflow.ExecuteActivity(ctx, Activity)
+		futs = append(futs, fut)
 	}
+	// }
 
 	for _, f := range futs {
 		err := f.Get(ctx, nil)

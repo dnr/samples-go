@@ -3,7 +3,10 @@ package main
 import (
 	"context"
 	"log"
+	"math"
+	"math/rand"
 	"os"
+	"strconv"
 	"time"
 
 	helloworldapiKey "github.com/temporalio/samples-go/helloworld-apiKey"
@@ -22,23 +25,28 @@ func main() {
 	}
 	defer c.Close()
 
-	workflowOptions := client.StartWorkflowOptions{
-		ID:        "hello-" + time.Now().Format(time.RFC3339),
-		TaskQueue: "fairtest1",
+	for {
+		time.Sleep(time.Second)
+
+		workflowOptions := client.StartWorkflowOptions{
+			ID:        "hello-" + strconv.Itoa(int(rand.Intn(math.MaxInt64))),
+			TaskQueue: "ptest",
+		}
+
+		we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, helloworldapiKey.Workflow, "Temporal")
+		if err != nil {
+			log.Println("Unable to start workflow", err)
+			continue
+		}
+
+		log.Println("Started workflow", "WorkflowID", we.GetID(), "RunID", we.GetRunID())
 	}
 
-	we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, helloworldapiKey.Workflow, "Temporal")
-	if err != nil {
-		log.Fatalln("Unable to execute workflow", err)
-	}
-
-	log.Println("Started workflow", "WorkflowID", we.GetID(), "RunID", we.GetRunID())
-
-	// Synchronously wait for the workflow completion.
-	var result string
-	err = we.Get(context.Background(), &result)
-	if err != nil {
-		log.Fatalln("Unable get workflow result", err)
-	}
-	log.Println("Workflow result:", result)
+	// // Synchronously wait for the workflow completion.
+	// var result string
+	// err = we.Get(context.Background(), &result)
+	// if err != nil {
+	// 	log.Fatalln("Unable get workflow result", err)
+	// }
+	// log.Println("Workflow result:", result)
 }

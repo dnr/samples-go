@@ -21,8 +21,9 @@ func main() {
 	}
 	defer c.Close()
 
-	w := worker.New(c, "fairtest2", worker.Options{
-		DisableWorkflowWorker: true,
+	w := worker.New(c, "ptest", worker.Options{
+		MaxConcurrentActivityTaskPollers: 10,
+		DisableWorkflowWorker:            true,
 	})
 
 	w.RegisterActivity(helloworldapiKey.Activity)
